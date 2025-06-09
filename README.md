@@ -1,30 +1,39 @@
-# Next js e commerce
-
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+# Santi’s – Montessori E-commerce 🧸🌱
 
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/magalvez-bukcls-projects/santiscl)
 [![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/EI5MhQe4QaS)
 
-## Overview
+## 🛍️ Overview
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+**Santi’s** is an e-commerce platform in development, focused on Montessori-inspired children's products that promote free play, autonomy, and conscious parenting.
 
-## Deployment
+The project is built with **TypeScript**, deployed on **Vercel**, and uses a **serverless architecture powered by Firebase**. It also includes an integrated admin panel created with [v0.dev](https://v0.dev).
 
-Your project is live at:
+## 🚀 Live Demo
 
-**[https://vercel.com/magalvez-bukcls-projects/santiscl](https://vercel.com/magalvez-bukcls-projects/santiscl)**
+🔗 [Visit the deployed app](https://vercel.com/magalvez-bukcls-projects/santiscl)
 
-## Build your app
+## 🛠️ Tech Stack
 
-Continue building your app on:
+- **Frontend**: TypeScript, V0.dev
+- **Backend**: Firebase (Firestore, Auth, Storage)
+- **Hosting**: Vercel
+- **Admin Panel**: Built with v0.dev
 
-**[https://v0.dev/chat/projects/EI5MhQe4QaS](https://v0.dev/chat/projects/EI5MhQe4QaS)**
+## 🧩 Features
 
-## How It Works
+- Product catalog with age and category filters
+- Admin panel for product management
+- Scalable and modular codebase
+- Serverless backend (Firebase)
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## 🧪 How It Works
+
+1. UI components created and synced via [v0.dev](https://v0.dev)
+2. Code is auto-pushed to this repository
+3. Vercel deploys the latest version
+4. Firebase handles backend logic and storage
+
+---
+
+> Made with love by Santi's Team.

@@ -11,7 +11,7 @@ The project is built with **TypeScript**, deployed on **Vercel**, and uses a **s
 
 ## 🚀 Live Demo
 
-🔗 [Visit the deployed app](https://vercel.com/magalvez-bukcls-projects/santiscl)
+🔗 [Visit the deployed app](https://santiscl.vercel.app)
 
 ## 🛠️ Tech Stack
 

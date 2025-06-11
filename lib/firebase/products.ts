@@ -22,7 +22,7 @@ export async function getProducts(): Promise<Product[]> {
 
   try {
     console.log("Obteniendo productos de Firestore...")
-    const q = query(collection(db, PRODUCTS_COLLECTION), orderBy("createdAt", "desc"))
+    const q = query(collection(db, PRODUCTS_COLLECTION), orderBy("name", "asc"))
     const querySnapshot = await getDocs(q)
 
     const products = querySnapshot.docs.map((doc) => ({

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { notFound } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { getProduct } from "@/lib/firebase/products"
 import type { Product } from "@/lib/types"
 import Link from "next/link"
@@ -18,6 +18,13 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+
+  // States for click-to-zoom and cursor follow
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [transformOrigin, setTransformOrigin] = useState("center center");
+  const zoomLevel = 2;
+  const imageContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadProduct()
@@ -31,6 +38,11 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         notFound()
       }
       setProduct(productData)
+      if (productData.images && productData.images.length > 0) {
+        setSelectedImage(productData.images[0]);
+      } else {
+        setSelectedImage("/placeholder.svg");
+      }
     } catch (error: any) {
       console.error("Error al cargar producto:", error)
       setError(error.message || "Error al cargar producto")
@@ -46,6 +58,19 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
   }
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isZoomed || !imageContainerRef.current) return;
+
+    const { left, top, width, height } = imageContainerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setTransformOrigin(`${x}% ${y}%`);
+  };
+
+  const handleImageClick = () => {
+    setIsZoomed(!isZoomed);
+  };
 
   if (loading) {
     return (
@@ -76,6 +101,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     notFound()
   }
 
+  const imagesToDisplay = product.images || [];
+  const mainImageUrl = selectedImage || imagesToDisplay[0] || "/placeholder.svg";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
       {/* Navegación */}
@@ -104,24 +132,40 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         <div className="grid md:grid-cols-2 gap-12">
           {/* Imágenes del Producto */}
           <div className="space-y-4">
-            <div className="aspect-square relative bg-white rounded-lg overflow-hidden shadow-sm border border-orange-100">
+            <div
+              ref={imageContainerRef}
+              onClick={handleImageClick}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={() => setIsZoomed(false)}
+              className={`aspect-square relative bg-white rounded-lg overflow-hidden shadow-sm border border-orange-100
+                ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}
+              `}
+            >
               <Image
-                src={product.images?.[0] || "/placeholder.svg?height=400&width=400"}
+                src={mainImageUrl}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-300 ease-out"
+                style={{
+                  transform: isZoomed ? `scale(${zoomLevel})` : 'scale(1)',
+                  transformOrigin: transformOrigin,
+                }}
               />
             </div>
-            {product.images && product.images.length > 1 && (
-              <div className="grid grid-cols-3 gap-4">
-                {product.images.slice(1, 4).map((image, index) => (
+
+            {imagesToDisplay.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {imagesToDisplay.slice(0, 6).map((image, index) => (
                   <div
                     key={index}
-                    className="aspect-square relative bg-white rounded-lg overflow-hidden shadow-sm border border-orange-100"
+                    className={`aspect-square relative bg-white rounded-lg overflow-hidden cursor-pointer w-20 h-20
+                      ${selectedImage === image ? 'border-2 border-orange-500 shadow-md' : 'border border-orange-100 hover:border-orange-300'}
+                    `}
+                    onClick={() => setSelectedImage(image)}
                   >
                     <Image
                       src={image || "/placeholder.svg?height=400&width=400"}
-                      alt={`${product.name} ${index + 2}`}
+                      alt={`${product.name} thumbnail ${index + 1}`}
                       fill
                       className="object-cover"
                     />

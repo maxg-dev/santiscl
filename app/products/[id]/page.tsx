@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react"
 import { getProduct } from "@/lib/firebase/products"
 import type { Product } from "@/lib/types"
 import Link from "next/link"
+import { formatPriceCLP } from "@/lib/utils"
 
 interface ProductDetailPageProps {
   params: {
@@ -20,7 +21,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const [error, setError] = useState("")
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
 
-  // States for click-to-zoom and cursor follow
   const [isZoomed, setIsZoomed] = useState(false);
   const [transformOrigin, setTransformOrigin] = useState("center center");
   const zoomLevel = 2;
@@ -179,7 +179,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           <div className="space-y-6">
             <div>
               <h1 className="text-3xl font-bold text-orange-900 mb-2">{product.name}</h1>
-              <p className="text-2xl font-semibold text-orange-700">${product.price}</p>
+              <p className="text-2xl font-semibold text-orange-700">{formatPriceCLP(product.price)}</p>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border border-orange-100">

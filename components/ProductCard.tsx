@@ -3,16 +3,8 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-
-interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  images: string[]
-  ageRecommendation?: string
-  dimensions?: string
-}
+import type { Product } from "@/lib/types"
+import { formatPriceCLP } from "@/lib/utils"
 
 interface ProductCardProps {
   product: Product
@@ -49,7 +41,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className="text-orange-700 text-sm mb-4 line-clamp-2">{product.description}</p>
 
         <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-orange-800">${product.price}</span>
+          <span className="text-xl font-bold text-orange-800">{formatPriceCLP(product.price)}</span>
 
           <Button onClick={handleWhatsAppRequest} size="sm" className="bg-green-600 hover:bg-green-700 text-white">
             Solicitar

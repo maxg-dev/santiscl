@@ -15,6 +15,7 @@ import type { Product } from "@/lib/types"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { formatPriceCLP } from "@/lib/utils"
 
 export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -100,7 +101,6 @@ export default function AdminPage() {
         setSuccess("Producto agregado exitosamente")
       }
 
-      // Resetear formulario
       setFormData({
         name: "",
         description: "",
@@ -285,7 +285,7 @@ export default function AdminPage() {
                   <Input
                     id="price"
                     type="number"
-                    step="0.01"
+                    step="10"
                     required
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
@@ -398,7 +398,7 @@ export default function AdminPage() {
                         <div className="flex-1">
                           <h3 className="font-semibold text-orange-900">{product.name}</h3>
                           <p className="text-orange-700 text-sm mt-1 line-clamp-2">{product.description}</p>
-                          <p className="text-orange-800 font-medium mt-2">${product.price}</p>
+                          <p className="text-orange-800 font-medium mt-2">{formatPriceCLP(product.price)}</p>
                           {product.ageRecommendation && (
                             <p className="text-orange-600 text-sm mt-1">Edad: {product.ageRecommendation}</p>
                           )}

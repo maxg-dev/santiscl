@@ -214,7 +214,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
             {product.dimensions && (
               <div className="bg-white p-6 rounded-lg shadow-sm border border-orange-100">
-                <h2 className="text-xl font-semibold text-orange-900 mb-3">Dimensiones</h2>
+                <h2 className="text-xl font-semibold text-orange-900 mb-3">Especificaciones</h2>
                 <p className="text-orange-700">{product.dimensions}</p>
               </div>
             )}

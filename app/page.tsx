@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
-      {/* Navegación */}
       <nav className="bg-white shadow-sm border-b border-orange-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -26,7 +25,6 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Sección Principal */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">
           <h1 className="text-5xl md:text-6xl font-bold text-orange-900 mb-6">Bienvenidos a Santi's</h1>
@@ -52,7 +50,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Sección de Características */}
         <div className="mt-20 grid md:grid-cols-3 gap-8">
           <div className="text-center p-6 bg-white rounded-lg shadow-sm border border-orange-100">
             <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">

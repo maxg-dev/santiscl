@@ -46,7 +46,6 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
-      {/* Navegación */}
       <nav className="bg-white shadow-sm border-b border-orange-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -77,7 +76,6 @@ export default function ContactPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-12">
-          {/* Formulario de Contacto */}
           <div className="bg-white p-8 rounded-lg shadow-sm border border-orange-100">
             <h2 className="text-2xl font-semibold text-orange-900 mb-6">Envíanos un Mensaje</h2>
 
@@ -168,7 +166,6 @@ export default function ContactPage() {
             )}
           </div>
 
-          {/* Información de Contacto */}
           <div className="space-y-8">
             <div className="bg-white p-8 rounded-lg shadow-sm border border-orange-100">
               <h2 className="text-2xl font-semibold text-orange-900 mb-6">Contacto Rápido</h2>

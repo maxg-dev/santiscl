@@ -16,6 +16,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatPriceCLP } from "@/lib/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { getCategoryDisplay } from "@/lib/utils"
 
 export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -32,6 +36,8 @@ export default function AdminPage() {
     ageRecommendation: "",
     dimensions: "",
     images: [] as string[],
+    category: "",
+    highlighted: false,
   })
 
   useEffect(() => {
@@ -91,6 +97,8 @@ export default function AdminPage() {
         ageRecommendation: formData.ageRecommendation,
         dimensions: formData.dimensions,
         images: formData.images,
+        category: formData.category,
+        highlighted: formData.highlighted,
       }
 
       if (editingProduct) {
@@ -108,6 +116,8 @@ export default function AdminPage() {
         ageRecommendation: "",
         dimensions: "",
         images: [],
+        category: "",
+        highlighted: false,
       })
       setEditingProduct(null)
       await loadProducts()
@@ -128,6 +138,8 @@ export default function AdminPage() {
       ageRecommendation: product.ageRecommendation || "",
       dimensions: product.dimensions || "",
       images: product.images || [],
+      category: product.category || "",
+      highlighted: product.highlighted || false,
     })
     setError("")
     setSuccess("")
@@ -191,6 +203,8 @@ export default function AdminPage() {
       ageRecommendation: "",
       dimensions: "",
       images: [],
+      category: "",
+      highlighted: false,
     })
     setError("")
     setSuccess("")
@@ -242,9 +256,10 @@ export default function AdminPage() {
             </div>
           )}
 
-          <div className="grid lg:grid-cols-2 gap-12">
+          {/* Main Content Grid - Fixed Height Layout */}
+          <div className="admin-grid">
             {/* Formulario de Producto */}
-            <div className="bg-white p-8 rounded-lg shadow-sm border border-orange-100">
+            <div className="admin-form">
               <h2 className="text-2xl font-semibold text-orange-900 mb-6">
                 {editingProduct ? "Editar Producto" : "Agregar Nuevo Producto"}
               </h2>
@@ -262,6 +277,25 @@ export default function AdminPage() {
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="border-orange-200 focus:border-orange-500"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="category">Categoría</Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona una categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="early-childhood">🧸 Primera infancia</SelectItem>
+                      <SelectItem value="on-the-move">🚲 En movimiento</SelectItem>
+                      <SelectItem value="play-corners">🏡 Rincones de juego</SelectItem>
+                      <SelectItem value="exploration-and-climbing">🧗‍♂️ Exploración y escalada</SelectItem>
+                      <SelectItem value="all">Todos los productos</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
@@ -359,6 +393,15 @@ export default function AdminPage() {
                   )}
                 </div>
 
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="highlighted"
+                    checked={formData.highlighted}
+                    onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, highlighted: checked }))}
+                  />
+                  <Label htmlFor="highlighted">Marcar como producto destacado</Label>
+                </div>
+
                 <div className="flex gap-4">
                   <Button
                     type="submit"
@@ -382,70 +425,145 @@ export default function AdminPage() {
             </div>
 
             {/* Lista de Productos */}
-            <div className="bg-white p-8 rounded-lg shadow-sm border border-orange-100">
-              <h2 className="text-2xl font-semibold text-orange-900 mb-6">Productos ({products.length})</h2>
+            <div className="admin-product-list">
+              {/* Header */}
+              <div className="admin-product-list-header">
+                <h2 className="text-2xl font-semibold text-orange-900">Productos ({products.length})</h2>
+              </div>
 
-              {products.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-orange-700 mb-4">No hay productos registrados.</p>
-                  <p className="text-orange-600 text-sm">Agrega tu primer producto usando el formulario.</p>
-                </div>
-              ) : (
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {products.map((product) => (
-                    <div key={product.id} className="border border-orange-100 rounded-lg p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-orange-900">{product.name}</h3>
-                          <p className="text-orange-700 text-sm mt-1 line-clamp-2">{product.description}</p>
-                          <p className="text-orange-800 font-medium mt-2">{formatPriceCLP(product.price)}</p>
-                          {product.ageRecommendation && (
-                            <p className="text-orange-600 text-sm mt-1">Edad: {product.ageRecommendation}</p>
-                          )}
-                          {product.createdAt && (
-                            <p className="text-orange-500 text-xs mt-1">
-                              Creado: {product.createdAt.toLocaleDateString()}
-                            </p>
-                          )}
+              {/* Scrollable Content */}
+              <div className="admin-product-list-content">
+                {products.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-orange-700 mb-4">No hay productos registrados.</p>
+                    <p className="text-orange-600 text-sm">Agrega tu primer producto usando el formulario.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {products.map((product) => (
+                      <div
+                        key={product.id}
+                        className="border border-orange-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex gap-4">
+                          {/* Product Image */}
+                          <div className="flex-shrink-0">
+                            <Image
+                              src={product.images?.[0] || "/placeholder.svg"}
+                              alt={product.name}
+                              width={120}
+                              height={120}
+                              className="w-30 h-30 object-cover rounded-lg"
+                            />
+                          </div>
+
+                          {/* Product Info */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold text-orange-900 mb-2 truncate">{product.name}</h3>
+
+                            {/* Category Badge and Highlighted Star */}
+                            {(product.category || product.highlighted) && (
+                              <div className="flex items-center gap-2 mb-2">
+                                {product.category && (
+                                  <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full">
+                                    {getCategoryDisplay(product.category)}
+                                  </span>
+                                )}
+                                {product.highlighted && (
+                                  <span className="text-yellow-500 text-lg" title="Producto destacado">
+                                    ⭐
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
+                            <p className="text-orange-700 text-sm mb-2 line-clamp-2">{product.description}</p>
+
+                            {/* Price and Actions */}
+                            <div className="flex items-center justify-between">
+                              <p className="text-xl font-bold text-orange-800">{formatPriceCLP(product.price)}</p>
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={() => handleEdit(product)}
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs border-orange-600 text-orange-600 hover:bg-orange-50"
+                                  disabled={isLoading}
+                                >
+                                  Editar
+                                </Button>
+                                <Button
+                                  onClick={() => handleDelete(product)}
+                                  variant="destructive"
+                                  size="sm"
+                                  className="text-xs"
+                                  disabled={isLoading}
+                                >
+                                  Eliminar
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        {product.images && product.images[0] && (
-                          <Image
-                            src={product.images[0] || "/placeholder.svg"}
-                            alt={product.name}
-                            width={60}
-                            height={60}
-                            className="w-15 h-15 object-cover rounded ml-4"
-                          />
-                        )}
                       </div>
-                      <div className="flex gap-2 mt-4">
-                        <Button
-                          onClick={() => handleEdit(product)}
-                          size="sm"
-                          variant="outline"
-                          className="border-orange-600 text-orange-600 hover:bg-orange-50"
-                          disabled={isLoading}
-                        >
-                          Editar
-                        </Button>
-                        <Button
-                          onClick={() => handleDelete(product)}
-                          size="sm"
-                          variant="outline"
-                          className="border-red-600 text-red-600 hover:bg-red-50"
-                          disabled={isLoading}
-                        >
-                          Eliminar
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </main>
       </div>
+
+      <style jsx>{`
+        .admin-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 3rem;
+          align-items: start;
+        }
+
+        .admin-form {
+          background: white;
+          padding: 2rem;
+          border-radius: 0.5rem;
+          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+          border: 1px solid rgb(254 215 170);
+        }
+
+        .admin-product-list {
+          background: white;
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgb(254 215 170);
+          display: flex;
+          flex-direction: column;
+          height: fit-content;
+        }
+
+        .admin-product-list-header {
+          padding: 1.5rem;
+          border-bottom: 1px solid rgb(254 215 170);
+          flex-shrink: 0;
+        }
+
+        .admin-product-list-content {
+          padding: 1.5rem;
+          max-height: 70vh;
+          overflow-y: auto;
+        }
+
+        @media (max-width: 1024px) {
+          .admin-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+          }
+          
+          .admin-product-list-content {
+            max-height: 50vh;
+          }
+        }
+      `}</style>
     </ProtectedRoute>
   )
 }

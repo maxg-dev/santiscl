@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import type { Product } from "@/lib/types"
 import { formatPriceCLP } from "@/lib/utils"
+import { getCategoryDisplay } from "@/lib/utils"
 
 interface ProductCardProps {
   product: Product
@@ -19,24 +20,40 @@ export default function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
+    
     <div className="bg-white rounded-lg shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition-shadow">
       <Link href={`/products/${product.id}`}>
         <div className="aspect-square relative bg-orange-50">
           <Image
-            src={product.images[0] || "/placeholder.svg"}
+            src={product.images?.[0] || "/placeholder.svg"}
             alt={product.name}
             fill
             className="object-cover hover:scale-105 transition-transform duration-300"
           />
+          {product.highlighted && (
+            <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 rounded-full p-1">
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+              </svg>
+            </div>
+          )}
         </div>
       </Link>
 
       <div className="p-6">
         <Link href={`/products/${product.id}`}>
-          <h3 className="text-lg font-semibold text-orange-900 mb-2 hover:text-orange-700 transition-colors">
-            {product.name}
-          </h3>
+        <h3 className="text-lg font-semibold text-orange-900 mb-2 hover:text-orange-700 transition-colors">
+          {product.name}
+        </h3>
         </Link>
+
+        <div className="mb-2">
+        {product.category && (
+          <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full">
+            {getCategoryDisplay(product.category)}
+          </span>
+        )}
+        </div>
 
         <p className="text-orange-700 text-sm mb-4 line-clamp-2">{product.description}</p>
 

@@ -154,12 +154,10 @@ export default function AdminPage() {
     setError("")
 
     try {
-      // Eliminar imágenes del storage
       if (product.images) {
         await Promise.all(product.images.map(deleteImage))
       }
 
-      // Eliminar producto de Firestore
       await deleteProduct(product.id)
       setSuccess("Producto eliminado exitosamente")
       await loadProducts()
@@ -179,7 +177,6 @@ export default function AdminPage() {
       setFormData({ ...formData, images: newImages })
     } catch (error) {
       console.error("Error al eliminar imagen:", error)
-      // Continuar eliminando de la lista local aunque falle el storage
       const newImages = formData.images.filter((_, i) => i !== index)
       setFormData({ ...formData, images: newImages })
     }
@@ -213,7 +210,6 @@ export default function AdminPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
-        {/* Navegación */}
         <nav className="bg-white shadow-sm border-b border-orange-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
@@ -243,7 +239,6 @@ export default function AdminPage() {
             <p className="text-xl text-orange-700">Gestiona los productos de Santi's</p>
           </div>
 
-          {/* Mensajes de estado */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
               <p className="text-red-700">{error}</p>
@@ -256,9 +251,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Main Content Grid - Fixed Height Layout */}
           <div className="admin-grid">
-            {/* Formulario de Producto */}
             <div className="admin-form">
               <h2 className="text-2xl font-semibold text-orange-900 mb-6">
                 {editingProduct ? "Editar Producto" : "Agregar Nuevo Producto"}
@@ -424,14 +417,11 @@ export default function AdminPage() {
               </form>
             </div>
 
-            {/* Lista de Productos */}
             <div className="admin-product-list">
-              {/* Header */}
               <div className="admin-product-list-header">
                 <h2 className="text-2xl font-semibold text-orange-900">Productos ({products.length})</h2>
               </div>
 
-              {/* Scrollable Content */}
               <div className="admin-product-list-content">
                 {products.length === 0 ? (
                   <div className="text-center py-8">
@@ -446,7 +436,6 @@ export default function AdminPage() {
                         className="border border-orange-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
                       >
                         <div className="flex gap-4">
-                          {/* Product Image */}
                           <div className="flex-shrink-0">
                             <Image
                               src={product.images?.[0] || "/placeholder.svg"}
@@ -457,11 +446,9 @@ export default function AdminPage() {
                             />
                           </div>
 
-                          {/* Product Info */}
                           <div className="flex-1 min-w-0">
                             <h3 className="text-lg font-semibold text-orange-900 mb-2 truncate">{product.name}</h3>
 
-                            {/* Category Badge and Highlighted Star */}
                             {(product.category || product.highlighted) && (
                               <div className="flex items-center gap-2 mb-2">
                                 {product.category && (
@@ -479,7 +466,6 @@ export default function AdminPage() {
 
                             <p className="text-orange-700 text-sm mb-2 line-clamp-2">{product.description}</p>
 
-                            {/* Price and Actions */}
                             <div className="flex items-center justify-between">
                               <p className="text-xl font-bold text-orange-800">{formatPriceCLP(product.price)}</p>
                               <div className="flex gap-2">
@@ -514,56 +500,6 @@ export default function AdminPage() {
           </div>
         </main>
       </div>
-
-      <style jsx>{`
-        .admin-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 3rem;
-          align-items: start;
-        }
-
-        .admin-form {
-          background: white;
-          padding: 2rem;
-          border-radius: 0.5rem;
-          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-          border: 1px solid rgb(254 215 170);
-        }
-
-        .admin-product-list {
-          background: white;
-          border-radius: 0.5rem;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-          border: 1px solid rgb(254 215 170);
-          display: flex;
-          flex-direction: column;
-          height: fit-content;
-        }
-
-        .admin-product-list-header {
-          padding: 1.5rem;
-          border-bottom: 1px solid rgb(254 215 170);
-          flex-shrink: 0;
-        }
-
-        .admin-product-list-content {
-          padding: 1.5rem;
-          max-height: 70vh;
-          overflow-y: auto;
-        }
-
-        @media (max-width: 1024px) {
-          .admin-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-          }
-          
-          .admin-product-list-content {
-            max-height: 50vh;
-          }
-        }
-      `}</style>
     </ProtectedRoute>
   )
 }

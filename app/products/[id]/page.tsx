@@ -108,7 +108,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
-      {/* Navegación */}
       <nav className="bg-white shadow-sm border-b border-orange-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -132,7 +131,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid md:grid-cols-2 gap-12">
-          {/* Imágenes del Producto */}
           <div className="space-y-4">
             <div
               ref={imageContainerRef}
@@ -177,15 +175,11 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             )}
           </div>
 
-          {/* Detalles del Producto */}
           <div className="space-y-6">
             <div>
-              {/* Product Name */}
               <h1 className="text-3xl font-bold text-orange-900 mb-3">{product.name}</h1>
 
-              {/* Badges Row: Destacado (left) + Category (right) */}
               <div className="flex items-center gap-3 mb-4">
-                {/* Destacado Badge - Left */}
                 {product.highlighted && (
                   <div className="flex items-center bg-yellow-100 text-yellow-800 px-3 py-1.5 rounded-full text-sm font-medium">
                     <span className="text-yellow-500 mr-1.5">⭐</span>
@@ -193,7 +187,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   </div>
                 )}
 
-                {/* Category Badge - Right */}
                 {product.category && (
                   <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full">
                     {getCategoryDisplay(product.category)}

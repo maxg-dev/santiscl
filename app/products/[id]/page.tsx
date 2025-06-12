@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { notFound } from "next/navigation"
@@ -7,7 +9,7 @@ import { useState, useEffect, useRef } from "react"
 import { getProduct } from "@/lib/firebase/products"
 import type { Product } from "@/lib/types"
 import Link from "next/link"
-import { formatPriceCLP } from "@/lib/utils"
+import { formatPriceCLP, getCategoryDisplay } from "@/lib/utils"
 
 interface ProductDetailPageProps {
   params: {
@@ -19,12 +21,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined)
 
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [transformOrigin, setTransformOrigin] = useState("center center");
-  const zoomLevel = 2;
-  const imageContainerRef = useRef<HTMLDivElement>(null);
+  const [isZoomed, setIsZoomed] = useState(false)
+  const [transformOrigin, setTransformOrigin] = useState("center center")
+  const zoomLevel = 2
+  const imageContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     loadProduct()
@@ -39,9 +41,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       }
       setProduct(productData)
       if (productData.images && productData.images.length > 0) {
-        setSelectedImage(productData.images[0]);
+        setSelectedImage(productData.images[0])
       } else {
-        setSelectedImage("/placeholder.svg");
+        setSelectedImage("/placeholder.svg")
       }
     } catch (error: any) {
       console.error("Error al cargar producto:", error)
@@ -60,17 +62,17 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   }
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isZoomed || !imageContainerRef.current) return;
+    if (!isZoomed || !imageContainerRef.current) return
 
-    const { left, top, width, height } = imageContainerRef.current.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    setTransformOrigin(`${x}% ${y}%`);
-  };
+    const { left, top, width, height } = imageContainerRef.current.getBoundingClientRect()
+    const x = ((e.clientX - left) / width) * 100
+    const y = ((e.clientY - top) / height) * 100
+    setTransformOrigin(`${x}% ${y}%`)
+  }
 
   const handleImageClick = () => {
-    setIsZoomed(!isZoomed);
-  };
+    setIsZoomed(!isZoomed)
+  }
 
   if (loading) {
     return (
@@ -101,8 +103,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     notFound()
   }
 
-  const imagesToDisplay = product.images || [];
-  const mainImageUrl = selectedImage || imagesToDisplay[0] || "/placeholder.svg";
+  const imagesToDisplay = product.images || []
+  const mainImageUrl = selectedImage || imagesToDisplay[0] || "/placeholder.svg"
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
@@ -138,16 +140,16 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               onMouseMove={handleMouseMove}
               onMouseLeave={() => setIsZoomed(false)}
               className={`aspect-square relative bg-white rounded-lg overflow-hidden shadow-sm border border-orange-100
-                ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}
+                ${isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"}
               `}
             >
               <Image
-                src={mainImageUrl}
+                src={mainImageUrl || "/placeholder.svg"}
                 alt={product.name}
                 fill
                 className="object-cover transition-transform duration-300 ease-out"
                 style={{
-                  transform: isZoomed ? `scale(${zoomLevel})` : 'scale(1)',
+                  transform: isZoomed ? `scale(${zoomLevel})` : "scale(1)",
                   transformOrigin: transformOrigin,
                 }}
               />
@@ -159,7 +161,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   <div
                     key={index}
                     className={`aspect-square relative bg-white rounded-lg overflow-hidden cursor-pointer w-20 h-20
-                      ${selectedImage === image ? 'border-2 border-orange-500 shadow-md' : 'border border-orange-100 hover:border-orange-300'}
+                      ${selectedImage === image ? "border-2 border-orange-500 shadow-md" : "border border-orange-100 hover:border-orange-300"}
                     `}
                     onClick={() => setSelectedImage(image)}
                   >
@@ -178,7 +180,27 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           {/* Detalles del Producto */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-orange-900 mb-2">{product.name}</h1>
+              {/* Product Name */}
+              <h1 className="text-3xl font-bold text-orange-900 mb-3">{product.name}</h1>
+
+              {/* Badges Row: Destacado (left) + Category (right) */}
+              <div className="flex items-center gap-3 mb-4">
+                {/* Destacado Badge - Left */}
+                {product.highlighted && (
+                  <div className="flex items-center bg-yellow-100 text-yellow-800 px-3 py-1.5 rounded-full text-sm font-medium">
+                    <span className="text-yellow-500 mr-1.5">⭐</span>
+                    Destacado
+                  </div>
+                )}
+
+                {/* Category Badge - Right */}
+                {product.category && (
+                  <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1.5 rounded-full">
+                    {getCategoryDisplay(product.category)}
+                  </span>
+                )}
+              </div>
+
               <p className="text-2xl font-semibold text-orange-700">{formatPriceCLP(product.price)}</p>
             </div>
 

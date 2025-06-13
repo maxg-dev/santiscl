@@ -21,7 +21,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     
-    <div className="bg-white rounded-lg shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg shadow-sm border border-orange-100 overflow-hidden hover:shadow-md hover:scale-[1.02] transition-transform duration-300">
       <Link href={`/products/${product.id}`}>
         <div className="aspect-square relative bg-orange-50">
           <Image
@@ -50,7 +50,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="mb-2">
         {product.category && (
           <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full">
-            {getCategoryDisplay(product.category)}
+            {getCategoryDisplay(product.category, true)}
           </span>
         )}
         </div>
@@ -61,7 +61,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           <span className="text-xl font-bold text-orange-800">{formatPriceCLP(product.price)}</span>
 
           <Button onClick={handleWhatsAppRequest} size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-            Solicitar
+            <span className="hidden sm:inline">Solicitar</span>
+            <span className="sm:hidden">💬</span>
           </Button>
         </div>
       </div>

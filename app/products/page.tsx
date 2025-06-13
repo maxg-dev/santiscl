@@ -1,24 +1,50 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import ProductCard from "@/components/ProductCard"
 import { getProducts } from "@/lib/firebase/products"
 import { getDownloadUrlForFile } from "@/lib/firebase/storage"
 import type { Product } from "@/lib/types"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import ProductCategoryCarousel from "@/components/ProductCategoryCarousel"
+
+const CATEGORIES = {
+  highlighted: { name: "Destacados", emoji: "🌟", slug: "highlighted" },
+  "early-childhood": { name: "Primera infancia", emoji: "🧸", slug: "early-childhood" },
+  "on-the-move": { name: "En movimiento", emoji: "🚲", slug: "on-the-move" },
+  "play-corners": { name: "Rincones de juego", emoji: "🏡", slug: "play-corners" },
+  "exploration-and-climbing": { name: "Exploración y escalada", emoji: "🧗‍♂️", slug: "exploration-and-climbing" },
+}
+
+const CATEGORY_ORDER: CategoryKey[] = [
+  "highlighted",
+  "early-childhood",
+  "on-the-move",
+  "play-corners",
+  "exploration-and-climbing",
+]
+
+type CategoryKey = keyof typeof CATEGORIES
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [pdfCatalogUrl, setPdfCatalogUrl] = useState<string | null>(null)
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false)
+  const [productsByCategory, setProductsByCategory] = useState<Record<string, Product[]>>({})
 
   useEffect(() => {
     loadProducts()
     loadPdfCatalogUrl()
   }, [])
+  
+  useEffect(() => {
+    if (products.length > 0) {
+      const grouped = groupProductsByCategory(products)
+      setProductsByCategory(grouped)
+    }
+  }, [products])  
 
   const loadProducts = async () => {
     try {
@@ -31,6 +57,10 @@ export default function ProductsPage() {
     } finally {
       setLoading(false)
     }
+    const productsData = await getProducts()
+    console.log("📦 Productos recibidos:", productsData)
+    setProducts(productsData)
+
   }
 
   const loadPdfCatalogUrl = async () => {
@@ -45,33 +75,69 @@ export default function ProductsPage() {
 
   const handleDownloadPdf = async () => {
     if (!pdfCatalogUrl) {
-      console.error("PDF catalog URL is not available.");
-      return;
+      console.error("PDF catalog URL is not available.")
+      return
     }
 
-    setIsDownloading(true);
+    setIsDownloading(true)
     try {
-      const response = await fetch(pdfCatalogUrl);
+      const response = await fetch(pdfCatalogUrl)
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
-      const blob = await response.blob();
+      const blob = await response.blob()
 
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Catálogo de Productos Santi\'s.pdf'; 
-      document.body.appendChild(a);
-      a.click(); 
-      a.remove(); 
-      window.URL.revokeObjectURL(url); 
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = "Catálogo de Productos Santi's.pdf"
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
     } catch (err) {
-      console.error("Error during PDF download:", err);
-      setError("Error al descargar el catálogo. Por favor, inténtalo de nuevo.");
+      console.error("Error during PDF download:", err)
+      setError("Error al descargar el catálogo. Por favor, inténtalo de nuevo.")
     } finally {
-      setIsDownloading(false);
+      setIsDownloading(false)
     }
-  };
+  }
+
+  const groupProductsByCategory = (products: Product[]) => {
+    const grouped: Record<string, Product[]> = {
+      highlighted: [],
+      "early-childhood": [],
+      "on-the-move": [],
+      "play-corners": [],
+      "exploration-and-climbing": []
+    }
+  
+    products.forEach((product) => {
+      if (product.highlighted) {
+        grouped.highlighted.push(product)
+      }
+    
+      const categoryKey = Object.keys(CATEGORIES).find(
+        (key) => product.category === CATEGORIES[key as CategoryKey].slug
+      ) as CategoryKey | undefined
+    
+      if (categoryKey && grouped[categoryKey]) {
+        grouped[categoryKey].push(product)
+      } else {
+        const fallbackKey: CategoryKey = "play-corners"
+        grouped[fallbackKey].push(product)
+      }      
+    })
+  
+    Object.keys(grouped).forEach((category) => {
+      if (category !== "highlighted") {
+        grouped[category].sort((a, b) => a.name.localeCompare(b.name))
+      }
+    })
+  
+    return grouped
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
@@ -102,7 +168,7 @@ export default function ProductsPage() {
           <p className="text-xl text-orange-700 max-w-2xl mx-auto">
             Explora nuestra colección cuidadosamente seleccionada de materiales educativos inspirados en Montessori.
           </p>
-          {pdfCatalogUrl && (
+          {/* {pdfCatalogUrl && (
             <div className="mt-6">
               <Button
                 variant="outline"
@@ -113,7 +179,7 @@ export default function ProductsPage() {
                 {isDownloading ? "Descargando..." : "¡Descarga nuestro catálogo!"}
               </Button>
             </div>
-          )}
+          )} */}
         </div>
 
         {loading ? (
@@ -141,10 +207,19 @@ export default function ProductsPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          <div className="space-y-8">
+            {CATEGORY_ORDER.map((key) => {
+              const category = CATEGORIES[key]
+              return (
+                <ProductCategoryCarousel
+                  key={key}
+                  title={category.name}
+                  emoji={category.emoji}
+                  products={productsByCategory[key] || []}
+                  categorySlug={category.slug}
+                />
+              )
+            })}
           </div>
         )}
       </main>

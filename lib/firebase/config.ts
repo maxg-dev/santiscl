@@ -12,7 +12,6 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 }
 
-// Verificar si Firebase está configurado
 export const isFirebaseConfigured = () => {
   const configured = !!(
     firebaseConfig.apiKey &&
@@ -34,11 +33,9 @@ export const isFirebaseConfigured = () => {
       appId: !!firebaseConfig.appId,
     })
   }
-
   return configured
 }
 
-// Inicializar Firebase solo si está configurado
 let app
 let db
 let storage
@@ -46,14 +43,10 @@ let auth
 
 if (isFirebaseConfigured()) {
   try {
-    // Inicializar app si no existe
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
-
-    // Inicializar servicios
     db = getFirestore(app)
     storage = getStorage(app)
     auth = getAuth(app)
-
     console.log("Firebase inicializado correctamente")
   } catch (error) {
     console.error("Error de inicialización de Firebase:", error)
@@ -61,5 +54,4 @@ if (isFirebaseConfigured()) {
 } else {
   console.error("Firebase no configurado - la aplicación no funcionará correctamente")
 }
-
 export { app, db, storage, auth }

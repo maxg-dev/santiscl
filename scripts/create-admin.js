@@ -1,8 +1,4 @@
-// Script para crear usuario administrador
-// Ejecutar en la consola del navegador después de cargar la página
-
 async function createFirstAdmin() {
-  // Verificar que Firebase esté cargado
   if (typeof window.createAdminUser === "undefined") {
     console.error("❌ Firebase no está cargado. Asegúrate de estar en la página de la aplicación.")
     return
@@ -15,12 +11,10 @@ async function createFirstAdmin() {
     console.log("❌ Operación cancelada")
     return
   }
-
   if (password.length < 6) {
     console.error("❌ La contraseña debe tener al menos 6 caracteres")
     return
   }
-
   try {
     await window.createAdminUser(email, password)
     console.log("✅ ¡Usuario administrador creado exitosamente!")
@@ -29,6 +23,4 @@ async function createFirstAdmin() {
     console.error("❌ Error:", error)
   }
 }
-
-// Ejecutar la función
 createFirstAdmin()

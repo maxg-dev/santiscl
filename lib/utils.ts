@@ -19,14 +19,17 @@ export function formatPriceCLP(price: number): string {
   return formattedPrice.replace("CLP", "$").trim()
 }
 
-// 👇 Agrega getCategoryDisplay como función separada aquí
-export function getCategoryDisplay(category: string): string {
-  const categories: Record<string, string> = {
-    "early-childhood": "🧸 Primera infancia",
-    "on-the-move": "🚲 En movimiento",
-    "play-corners": "🏡 Rincones de juego",
-    "exploration-and-climbing": "🧗‍♂️ Exploración y escalada",
-    "all": "📦 Todos los productos",
+export function getCategoryDisplay(category: string, withEmoji = true): string {
+  const categories: Record<string, { label: string; emoji: string }> = {
+    "early-childhood": { label: "Primera infancia", emoji: "🧸" },
+    "on-the-move": { label: "En movimiento", emoji: "🚲" },
+    "play-corners": { label: "Rincones de juego", emoji: "🏡" },
+    "exploration-and-climbing": { label: "Exploración y escalada", emoji: "🧗‍♂️" },
+    "all": { label: "Todos los productos", emoji: "📦" },
   }
-  return categories[category] || `📦 ${category}`
+
+  const data = categories[category]
+  if (!data) return withEmoji ? `📦 ${category}` : category
+
+  return withEmoji ? `${data.emoji} ${data.label}` : data.label
 }

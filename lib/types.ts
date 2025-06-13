@@ -4,6 +4,8 @@ export interface Product {
   description: string
   price: number
   images?: string[]
+  category: string
+  highlighted: boolean
   ageRecommendation?: string
   dimensions?: string
   createdAt?: Date

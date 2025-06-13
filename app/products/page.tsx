@@ -57,15 +57,14 @@ export default function ProductsPage() {
       }
       const blob = await response.blob();
 
-      // Create a temporary URL for the blob
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'Catálogo de Productos Santi\'s.pdf'; // Filename for the download
+      a.download = 'Catálogo de Productos Santi\'s.pdf'; 
       document.body.appendChild(a);
-      a.click(); // Programmatically click the link to trigger download
-      a.remove(); // Remove the element after clicking
-      window.URL.revokeObjectURL(url); // Clean up the temporary URL
+      a.click(); 
+      a.remove(); 
+      window.URL.revokeObjectURL(url); 
     } catch (err) {
       console.error("Error during PDF download:", err);
       setError("Error al descargar el catálogo. Por favor, inténtalo de nuevo.");
@@ -76,7 +75,6 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
-      {/* Navegación */}
       <nav className="bg-white shadow-sm border-b border-orange-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">

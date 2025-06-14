@@ -38,6 +38,7 @@ export default function AdminPage() {
     images: [] as string[],
     category: "",
     highlighted: false,
+    stock: "",
   })
 
   useEffect(() => {
@@ -99,6 +100,7 @@ export default function AdminPage() {
         images: formData.images,
         category: formData.category,
         highlighted: formData.highlighted,
+        stock: formData.stock ? Number(formData.stock) : 0,
       }
 
       if (editingProduct) {
@@ -118,6 +120,7 @@ export default function AdminPage() {
         images: [],
         category: "",
         highlighted: false,
+        stock: ""
       })
       setEditingProduct(null)
       await loadProducts()
@@ -140,6 +143,7 @@ export default function AdminPage() {
       images: product.images || [],
       category: product.category || "",
       highlighted: product.highlighted || false,
+      stock: product.stock?.toString() || ""
     })
     setError("")
     setSuccess("")
@@ -202,6 +206,7 @@ export default function AdminPage() {
       images: [],
       category: "",
       highlighted: false,
+      stock: ""
     })
     setError("")
     setSuccess("")
@@ -317,6 +322,21 @@ export default function AdminPage() {
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     className="border-orange-200 focus:border-orange-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="stock" className="block text-sm font-medium text-orange-900 mb-2">
+                    Stock disponible
+                  </label>
+                  <Input
+                    id="stock"
+                    type="number"
+                    min="0"
+                    value={formData.stock}
+                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                    className="border-orange-200 focus:border-orange-500"
+                    placeholder="ej., 10"
                   />
                 </div>
 
@@ -465,6 +485,10 @@ export default function AdminPage() {
                             )}
 
                             <p className="text-orange-700 text-sm mb-2 line-clamp-2">{product.description}</p>
+
+                            <p className="text-sm text-orange-700">
+                              Stock: {product.stock ?? "No especificado"}
+                            </p>
 
                             <div className="flex items-center justify-between">
                               <p className="text-xl font-bold text-orange-800">{formatPriceCLP(product.price)}</p>

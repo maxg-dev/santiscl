@@ -195,6 +195,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               </div>
 
               <p className="text-2xl font-semibold text-orange-700">{formatPriceCLP(product.price)}</p>
+              {typeof product.stock === "number" && (
+                <p className="text-sm text-orange-700 mt-1">Stock: {product.stock} unidad{product.stock === 1 ? "" : "es"}</p>
+              )}
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border border-orange-100">

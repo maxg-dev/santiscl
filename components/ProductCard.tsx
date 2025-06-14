@@ -4,8 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import type { Product } from "@/lib/types"
-import { formatPriceCLP } from "@/lib/utils"
-import { getCategoryDisplay } from "@/lib/utils"
+import { cn, formatPriceCLP, getCategoryDisplay } from "@/lib/utils"
 
 interface ProductCardProps {
   product: Product
@@ -21,7 +20,13 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     
-    <div className="bg-white rounded-lg shadow-sm border border-orange-100 overflow-hidden hover:shadow-md hover:scale-[1.02] transition-transform duration-300">
+    <div 
+      className={cn(
+        "bg-white rounded-lg shadow-sm border border-orange-100",
+        "overflow-hidden hover:shadow-md hover:scale-[1.02]",
+        "transition-transform duration-300 flex flex-col h-full"
+      )}
+    >
       <Link href={`/products/${product.id}`}>
         <div className="aspect-square relative bg-orange-50">
           <Image
@@ -40,7 +45,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       </Link>
 
-      <div className="p-6">
+      <div className="p-6 flex flex-col flex-1">
         <Link href={`/products/${product.id}`}>
         <h3 className="text-lg font-semibold text-orange-900 mb-2 hover:text-orange-700 transition-colors">
           {product.name}
@@ -57,7 +62,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <p className="text-orange-700 text-sm mb-4 line-clamp-2">{product.description}</p>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-auto">
           <span className="text-xl font-bold text-orange-800">{formatPriceCLP(product.price)}</span>
 
           <Button onClick={handleWhatsAppRequest} size="sm" className="bg-green-600 hover:bg-green-700 text-white">

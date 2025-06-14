@@ -6,6 +6,7 @@ export interface Product {
   images?: string[]
   category: string
   highlighted: boolean
+  stock?: number
   ageRecommendation?: string
   dimensions?: string
   createdAt?: Date

@@ -145,7 +145,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 src={mainImageUrl || "/placeholder.svg"}
                 alt={product.name}
                 fill
-                className="object-cover transition-transform duration-300 ease-out"
+                className="object-contain transition-transform duration-300 ease-out"
                 style={{
                   transform: isZoomed ? `scale(${zoomLevel})` : "scale(1)",
                   transformOrigin: transformOrigin,
@@ -167,7 +167,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                       src={image || "/placeholder.svg?height=400&width=400"}
                       alt={`${product.name} thumbnail ${index + 1}`}
                       fill
-                      className="object-cover"
+                      className="object-contain"
                     />
                   </div>
                 ))}

@@ -391,7 +391,7 @@ export default function AdminPage() {
                             alt={`Imagen del producto ${index + 1}`}
                             width={100}
                             height={100}
-                            className="w-full h-24 object-cover rounded border"
+                            className="w-full h-24 object-contain rounded border"
                           />
                           <Button
                             type="button"
@@ -462,7 +462,7 @@ export default function AdminPage() {
                               alt={product.name}
                               width={120}
                               height={120}
-                              className="w-30 h-30 object-cover rounded-lg"
+                              className="w-30 h-30 object-contain rounded-lg"
                             />
                           </div>
 

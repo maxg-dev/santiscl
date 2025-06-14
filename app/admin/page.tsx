@@ -356,15 +356,15 @@ export default function AdminPage() {
 
                 <div>
                   <label htmlFor="dimensions" className="block text-sm font-medium text-orange-900 mb-2">
-                    Dimensiones
+                    Especificaciones
                   </label>
-                  <Input
+                  <Textarea
                     id="dimensions"
-                    type="text"
+                    rows={4}
                     value={formData.dimensions}
                     onChange={(e) => setFormData({ ...formData, dimensions: e.target.value })}
                     className="border-orange-200 focus:border-orange-500"
-                    placeholder="ej., 10cm x 15cm x 5cm"
+                    placeholder="ej., Material: Madera de pino, Peso: 1.5 kg, Certificaciones: CE"
                   />
                 </div>
 

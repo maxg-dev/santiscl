@@ -155,7 +155,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
             {imagesToDisplay.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {imagesToDisplay.slice(0, 6).map((image, index) => (
+                {imagesToDisplay.slice(0, 10).map((image, index) => (
                   <div
                     key={index}
                     className={`aspect-square relative bg-white rounded-lg overflow-hidden cursor-pointer w-20 h-20

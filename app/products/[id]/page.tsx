@@ -9,6 +9,7 @@ import { useState, useEffect, useRef } from "react"
 import { getProduct } from "@/lib/firebase/products"
 import type { Product } from "@/lib/types"
 import Link from "next/link"
+import { marked } from "marked"
 import { formatPriceCLP, getCategoryDisplay } from "@/lib/utils"
 
 interface ProductDetailPageProps {
@@ -202,7 +203,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
             <div className="bg-white p-6 rounded-lg shadow-sm border border-orange-100">
               <h2 className="text-xl font-semibold text-orange-900 mb-3">Descripción</h2>
-              <p className="text-orange-700 leading-relaxed">{product.description}</p>
+              <div
+                className="text-orange-700 leading-relaxed prose prose-orange"
+                dangerouslySetInnerHTML={{ __html: marked.parse(product.description || "", { breaks: true }) }}
+              />
             </div>
 
             {product.ageRecommendation && (
@@ -215,7 +219,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             {product.dimensions && (
               <div className="bg-white p-6 rounded-lg shadow-sm border border-orange-100">
                 <h2 className="text-xl font-semibold text-orange-900 mb-3">Especificaciones</h2>
-                <p className="text-orange-700">{product.dimensions}</p>
+                <div
+                  className="text-orange-700 leading-relaxed prose prose-orange"
+                  dangerouslySetInnerHTML={{ __html: marked.parse(product.dimensions || "", { breaks: true }) }}
+                />
               </div>
             )}
 

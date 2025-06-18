@@ -5,8 +5,9 @@ import { getProducts } from "@/lib/firebase/products"
 import { getDownloadUrlForFile } from "@/lib/firebase/storage"
 import type { Product } from "@/lib/types"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import ProductCategoryCarousel from "@/components/ProductCategoryCarousel"
+import ProductCard from "@/components/ProductCard"
 
 const CATEGORIES = {
   highlighted: { name: "Destacados", emoji: "🌟", slug: "highlighted" },
@@ -30,6 +31,8 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [pdfCatalogUrl, setPdfCatalogUrl] = useState<string | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const [productsByCategory, setProductsByCategory] = useState<Record<string, Product[]>>({})
@@ -43,8 +46,22 @@ export default function ProductsPage() {
     if (products.length > 0) {
       const grouped = groupProductsByCategory(products)
       setProductsByCategory(grouped)
+
+      if (searchQuery === "") {
+        setFilteredProducts(products)
+      }
     }
-  }, [products])  
+  }, [products])
+
+  const normalizeString = (str: string) => {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  };
+
+  useEffect(() => {
+    setFilteredProducts(
+      products.filter((product) => normalizeString(product.name).includes(normalizeString(searchQuery)))
+    )
+  }, [products, searchQuery])
 
   const loadProducts = async () => {
     try {
@@ -57,10 +74,6 @@ export default function ProductsPage() {
     } finally {
       setLoading(false)
     }
-    const productsData = await getProducts()
-    console.log("📦 Productos recibidos:", productsData)
-    setProducts(productsData)
-
   }
 
   const loadPdfCatalogUrl = async () => {
@@ -182,6 +195,13 @@ export default function ProductsPage() {
           )} */}
         </div>
 
+        <div className="mb-8">
+          <Input
+            type="text"
+            placeholder="Buscar productos por nombre"
+            value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+        </div>
+
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
@@ -197,17 +217,31 @@ export default function ProductsPage() {
               </button>
             </div>
           </div>
-        ) : products.length === 0 ? (
+        ) : (searchQuery && filteredProducts.length === 0) ? (
+
+          <div className="text-center py-12">
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 max-w-md mx-auto">
+              <h3 className="text-lg font-semibold text-orange-800 mb-2">No se encontraron productos</h3>
+              <p className="text-orange-700">
+                No hay productos que coincidan con &quot;{searchQuery}&quot;.
+              </p>
+            </div>
+          </div>
+        ) : products.length === 0 && !searchQuery ? (
           <div className="text-center py-12">
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 max-w-md mx-auto">
               <h3 className="text-lg font-semibold text-orange-800 mb-2">No Hay Productos</h3>
               <p className="text-orange-700">
-                Aún no hay productos disponibles. Vuelve pronto para ver nuestras novedades.
+                Aún no hay productos disponibles para mostrar.
               </p>
             </div>
           </div>
+        ) : searchQuery ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredProducts.map((product) => <ProductCard key={product.id} product={product} />)}
+          </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-12">
             {CATEGORY_ORDER.map((key) => {
               const category = CATEGORIES[key]
               return (

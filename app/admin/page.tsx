@@ -14,6 +14,13 @@ import ProtectedRoute from "@/components/ProtectedRoute"
 import type { Product } from "@/lib/types"
 import Image from "next/image"
 import Link from "next/link"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Info } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { formatPriceCLP } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -297,9 +304,29 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-orange-900 mb-2">
-                    Descripción *
-                  </label>
+                  <div className="flex items-center mb-2">
+                    <label htmlFor="description" className="block text-sm font-medium text-orange-900">
+                      Descripción *
+                    </label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-orange-600 ml-2 cursor-pointer" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs text-xs">
+                          <h4 className="font-bold mb-1">Guía de Markdown:</h4>
+                          <ul className="list-disc list-inside space-y-0.5 pl-4">
+                            <li>Encabezado 1: # Título</li>
+                            <li>Encabezado 2: ## Subtítulo</li>
+                            <li>Negrita: **texto**</li>
+                            <li>Cursiva: *texto*</li>
+                            <li>Código inline: `code`</li>
+                            <li>Listas: - item</li>
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <Textarea
                     id="description"
                     required
@@ -355,9 +382,29 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="dimensions" className="block text-sm font-medium text-orange-900 mb-2">
-                    Especificaciones
-                  </label>
+                  <div className="flex items-center mb-2">
+                    <label htmlFor="dimensions" className="block text-sm font-medium text-orange-900">
+                      Especificaciones *
+                    </label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-orange-600 ml-2 cursor-pointer" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs text-xs">
+                          <h4 className="font-bold mb-1">Guía de Markdown:</h4>
+                          <ul className="list-disc list-inside space-y-0.5 pl-4">
+                            <li>Encabezado 1: # Título</li>
+                            <li>Encabezado 2: ## Subtítulo</li>
+                            <li>Negrita: **texto**</li>
+                            <li>Cursiva: *texto*</li>
+                            <li>Código inline: `code`</li>
+                            <li>Listas: - item</li>
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <Textarea
                     id="dimensions"
                     rows={4}

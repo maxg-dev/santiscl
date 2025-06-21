@@ -1,7 +1,7 @@
-import { initializeApp, getApps } from "firebase/app"
-import { getFirestore } from "firebase/firestore"
-import { getStorage } from "firebase/storage"
-import { getAuth } from "firebase/auth"
+import { initializeApp, getApps, FirebaseApp } from "firebase/app"
+import { getFirestore, Firestore } from "firebase/firestore"
+import { getStorage, FirebaseStorage } from "firebase/storage"
+import { getAuth, Auth } from "firebase/auth"
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -36,10 +36,10 @@ export const isFirebaseConfigured = () => {
   return configured
 }
 
-let app
-let db
-let storage
-let auth
+let app: FirebaseApp | undefined;
+let db: Firestore | undefined;
+let storage: FirebaseStorage | undefined;
+let auth: Auth | undefined;
 
 if (isFirebaseConfigured()) {
   try {
@@ -55,3 +55,4 @@ if (isFirebaseConfigured()) {
   console.error("Firebase no configurado - la aplicación no funcionará correctamente")
 }
 export { app, db, storage, auth }
+

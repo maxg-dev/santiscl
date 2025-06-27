@@ -5,9 +5,9 @@
 
 ## 🛍️ Overview
 
-**Santi’s** is an e-commerce platform in development, focused on Montessori-inspired children's products that promote free play, autonomy, and conscious parenting.
+**Santi’s** is an e-commerce platform in development, focused on Montessori-inspired children’s products that promote free play, autonomy, and conscious parenting.
 
-The project is built with **TypeScript**, deployed on **Vercel**, and uses a **serverless architecture powered by Firebase**. It also includes an integrated admin panel created with [v0.dev](https://v0.dev).
+The project is built with **TypeScript**, deployed on **Vercel**, and follows a **serverless architecture powered by Firebase**. It also includes an integrated admin panel built with [v0.dev](https://v0.dev).
 
 ## 🚀 Live Demo
 
@@ -15,25 +15,25 @@ The project is built with **TypeScript**, deployed on **Vercel**, and uses a **s
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: TypeScript, V0.dev
-- **Backend**: Firebase (Firestore, Auth, Storage)
+- **Frontend**: TypeScript, [v0.dev](https://v0.dev)
+- **Backend**: Firebase (Firestore, Authentication, Storage)
 - **Hosting**: Vercel
-- **Admin Panel**: Built with v0.dev
+- **Admin Panel**: Created with [v0.dev](https://v0.dev)
 
 ## 🧩 Features
 
-- Product catalog with age and category filters
-- Admin panel for product management
-- Scalable and modular codebase
-- Serverless backend (Firebase)
+- 🧸 Product catalog with filters by age and category  
+- 🧑‍💼 Admin panel for product management  
+- 📦 Scalable and modular codebase  
+- 🔌 Serverless backend using Firebase  
 
 ## 🧪 How It Works
 
-1. UI components created and synced via [v0.dev](https://v0.dev)
-2. Code is auto-pushed to this repository
-3. Vercel deploys the latest version
-4. Firebase handles backend logic and storage
+1. UI components are built and synced via [v0.dev](https://v0.dev)  
+2. The code is auto-pushed to this GitHub repository  
+3. Vercel continuously deploys the latest version  
+4. Firebase handles authentication, product data, and image storage  
 
 ---
 
-> Made with love by Santi's Team.
+> Made with ❤️ by Santi’s Team.

@@ -5,12 +5,18 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import ProductCard from "@/components/ProductCard"
-import type { Product } from "@/lib/types"
+import type { ParentProduct, ProductVariant } from "@/lib/types"
+
+// Define a type for products displayed in the list/carousel, matching app/products/page.tsx
+interface DisplayProduct {
+  parent: ParentProduct;
+  defaultVariant: ProductVariant;
+}
 
 interface ProductCategoryCarouselProps {
   title: string
   emoji: string
-  products: Product[]
+  products: DisplayProduct[]
   categorySlug: string
 }
 
@@ -24,6 +30,10 @@ export default function ProductCategoryCarousel({
   const [showLeftArrow, setShowLeftArrow] = useState(false)
   const [showRightArrow, setShowRightArrow] = useState(true)
 
+  /**
+   * Scrolls the carousel left or right.
+   * @param direction 'left' or 'right'
+   */
   const scroll = (direction: "left" | "right") => {
     if (!carouselRef.current) return
 
@@ -36,9 +46,9 @@ export default function ProductCategoryCarousel({
       behavior: "smooth",
     })
 
+    // Update arrow visibility after scroll animation
     setTimeout(() => {
       if (!carouselRef.current) return
-
       setShowLeftArrow(carouselRef.current.scrollLeft > 0)
       setShowRightArrow(
         carouselRef.current.scrollLeft < carouselRef.current.scrollWidth - carouselRef.current.clientWidth - 10,
@@ -46,6 +56,7 @@ export default function ProductCategoryCarousel({
     }, 300)
   }
 
+  // If there are no products for this category, don't render the carousel
   if (products.length === 0) return null
 
   return (
@@ -64,6 +75,7 @@ export default function ProductCategoryCarousel({
       </div>
 
       <div className="relative">
+        {/* Left scroll arrow, visible only if there's content to scroll left to */}
         {showLeftArrow && (
           <button
             onClick={() => scroll("left")}
@@ -74,25 +86,33 @@ export default function ProductCategoryCarousel({
           </button>
         )}
 
+        {/* The scrollable container for product cards */}
         <div
           ref={carouselRef}
           className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide scroll-smooth"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }} // Hide scrollbar for most browsers
+          // Update arrow visibility when the user scrolls manually
           onScroll={() => {
             if (!carouselRef.current) return
             setShowLeftArrow(carouselRef.current.scrollLeft > 0)
+            // Check if scroll position is not at the very end (with a small buffer)
             setShowRightArrow(
               carouselRef.current.scrollLeft < carouselRef.current.scrollWidth - carouselRef.current.clientWidth - 10,
             )
           }}
         >
-          {products.map((product) => (
-            <div key={product.id} className="min-w-[250px] max-w-[250px]">
-              <ProductCard product={product} />
+          {/* Render each product card using the parent and default variant */}
+          {products.map((displayProduct) => (
+            <div key={displayProduct.parent.id + "-" + displayProduct.defaultVariant.id} className="min-w-[250px] max-w-[250px]">
+              <ProductCard
+                parentProduct={displayProduct.parent}
+                variant={displayProduct.defaultVariant}
+              />
             </div>
           ))}
         </div>
 
+        {/* Right scroll arrow, visible only if there's content to scroll right to */}
         {showRightArrow && (
           <button
             onClick={() => scroll("right")}

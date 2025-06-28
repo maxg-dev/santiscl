@@ -1,14 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getProducts } from "@/lib/firebase/products"
+import { getAllParentProducts, getProductVariants } from "@/lib/firebase/products"
 import { getDownloadUrlForFile } from "@/lib/firebase/storage"
-import type { Product } from "@/lib/types"
+import type { ParentProduct, ProductVariant } from "@/lib/types"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import ProductCategoryCarousel from "@/components/ProductCategoryCarousel"
 import ProductCard from "@/components/ProductCard"
 
+// Define product categories with their display names and emojis
 const CATEGORIES = {
   highlighted: { name: "Destacados", emoji: "🌟", slug: "highlighted" },
   "early-childhood": { name: "Primera infancia", emoji: "🧸", slug: "early-childhood" },
@@ -17,6 +18,7 @@ const CATEGORIES = {
   "exploration-and-climbing": { name: "Exploración y escalada", emoji: "🧗‍♂️", slug: "exploration-and-climbing" },
 }
 
+// Define the order in which categories should appear on the page
 const CATEGORY_ORDER: CategoryKey[] = [
   "highlighted",
   "early-childhood",
@@ -27,55 +29,87 @@ const CATEGORY_ORDER: CategoryKey[] = [
 
 type CategoryKey = keyof typeof CATEGORIES
 
+interface DisplayProduct {
+  parent: ParentProduct;
+  defaultVariant: ProductVariant;
+}
+
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([])
+  const [allDisplayProducts, setAllDisplayProducts] = useState<DisplayProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+  const [filteredDisplayProducts, setFilteredDisplayProducts] = useState<DisplayProduct[]>([])
   const [pdfCatalogUrl, setPdfCatalogUrl] = useState<string | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)
-  const [productsByCategory, setProductsByCategory] = useState<Record<string, Product[]>>({})
+  const [productsByCategory, setProductsByCategory] = useState<Record<string, DisplayProduct[]>>({})
 
+  // Load products and PDF catalog URL on component mount
   useEffect(() => {
-    loadProducts()
+    loadProductsAndVariants()
     loadPdfCatalogUrl()
   }, [])
-  
+
+  // Filter products whenever allDisplayProducts or searchQuery changes
   useEffect(() => {
-    if (products.length > 0) {
-      const grouped = groupProductsByCategory(products)
-      setProductsByCategory(grouped)
-
-      if (searchQuery === "") {
-        setFilteredProducts(products)
-      }
+    if (searchQuery === "") {
+      setFilteredDisplayProducts(allDisplayProducts);
+    } else {
+      setFilteredDisplayProducts(
+        allDisplayProducts.filter((displayProduct) =>
+          normalizeString(displayProduct.parent.name).includes(normalizeString(searchQuery)) ||
+          normalizeString(displayProduct.defaultVariant.variantName).includes(normalizeString(searchQuery))
+        )
+      );
     }
-  }, [products])
+    // Group products by category whenever allDisplayProducts or filteredDisplayProducts changes
+    // This needs to run AFTER filtering to group the currently visible products
+    const grouped = groupProductsByCategory(searchQuery ? filteredDisplayProducts : allDisplayProducts);
+    setProductsByCategory(grouped);
+  }, [allDisplayProducts, searchQuery]) // Depend on allDisplayProducts and searchQuery
 
+  // Helper function to normalize strings for search (lowercase and remove diacritics)
   const normalizeString = (str: string) => {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   };
 
-  useEffect(() => {
-    setFilteredProducts(
-      products.filter((product) => normalizeString(product.name).includes(normalizeString(searchQuery)))
-    )
-  }, [products, searchQuery])
-
-  const loadProducts = async () => {
+  /**
+   * Fetches all parent products and their default variants, then updates state.
+   */
+  const loadProductsAndVariants = async () => {
     try {
       setError("")
-      const productsData = await getProducts()
-      setProducts(productsData)
+      setLoading(true)
+      const parentProducts = await getAllParentProducts()
+
+      const displayProductsPromises = parentProducts.map(async (parent) => {
+        const variants = await getProductVariants(parent.id)
+        let defaultVariant = variants.find(v => v.isDefault) || variants[0] // Find default or take first
+
+        // If no variants exist for a parent, we might want to skip it or handle it.
+        // For now, if no variant, defaultVariant will be undefined, so the ProductCard will handle it.
+        if (!defaultVariant) {
+            console.warn(`No variants found for parent product: ${parent.name} (${parent.id})`);
+            return null; // Skip this product if it has no variants
+        }
+
+        return { parent, defaultVariant }
+      })
+
+      const loadedDisplayProducts = (await Promise.all(displayProductsPromises)).filter(Boolean) as DisplayProduct[];
+
+      setAllDisplayProducts(loadedDisplayProducts)
+      setLoading(false)
     } catch (error: any) {
-      console.error("Error al cargar productos:", error)
-      setError(error.message || "Error al cargar productos")
-    } finally {
+      console.error("Error al cargar productos y variantes:", error)
+      setError(error.message || "Error al cargar productos y variantes")
       setLoading(false)
     }
   }
 
+  /**
+   * Loads the PDF catalog download URL from Firebase Storage.
+   */
   const loadPdfCatalogUrl = async () => {
     try {
       const url = await getDownloadUrlForFile("catalogs/santis_catalog.pdf")
@@ -86,6 +120,9 @@ export default function ProductsPage() {
     }
   }
 
+  /**
+   * Handles the PDF catalog download.
+   */
   const handleDownloadPdf = async () => {
     if (!pdfCatalogUrl) {
       console.error("PDF catalog URL is not available.")
@@ -116,41 +153,49 @@ export default function ProductsPage() {
     }
   }
 
-  const groupProductsByCategory = (products: Product[]) => {
-    const grouped: Record<string, Product[]> = {
+  /**
+   * Groups a list of DisplayProduct objects by their categories.
+   * @param productsToGroup The array of DisplayProduct objects to group.
+   * @returns A record mapping category slug to an array of DisplayProduct.
+   */
+  const groupProductsByCategory = (productsToGroup: DisplayProduct[]) => {
+    const grouped: Record<string, DisplayProduct[]> = {
       highlighted: [],
       "early-childhood": [],
       "on-the-move": [],
       "play-corners": [],
       "exploration-and-climbing": []
     }
-  
-    products.forEach((product) => {
-      if (product.highlighted) {
-        grouped.highlighted.push(product)
+
+    productsToGroup.forEach((displayProduct) => {
+      // Add to highlighted if marked
+      if (displayProduct.parent.highlighted) {
+        grouped.highlighted.push(displayProduct)
       }
-    
+
+      // Add to its specific category
       const categoryKey = Object.keys(CATEGORIES).find(
-        (key) => product.category === CATEGORIES[key as CategoryKey].slug
+        (key) => displayProduct.parent.category === CATEGORIES[key as CategoryKey].slug
       ) as CategoryKey | undefined
-    
+
       if (categoryKey && grouped[categoryKey]) {
-        grouped[categoryKey].push(product)
+        grouped[categoryKey].push(displayProduct)
       } else {
-        const fallbackKey: CategoryKey = "play-corners"
-        grouped[fallbackKey].push(product)
-      }      
+        // Fallback for uncategorized products or products with unknown categories
+        const fallbackKey: CategoryKey = "play-corners" // Or create a "misc" category
+        grouped[fallbackKey].push(displayProduct)
+      }
     })
-  
+
+    // Sort products within each category (except highlighted, which might have its own order logic later)
     Object.keys(grouped).forEach((category) => {
       if (category !== "highlighted") {
-        grouped[category].sort((a, b) => a.name.localeCompare(b.name))
+        grouped[category].sort((a, b) => a.parent.name.localeCompare(b.parent.name));
       }
-    })
-  
+    });
+
     return grouped
   }
-
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50">
@@ -181,16 +226,17 @@ export default function ProductsPage() {
           <p className="text-xl text-orange-700 max-w-2xl mx-auto">
             Explora nuestra colección cuidadosamente seleccionada de materiales educativos inspirados en Montessori.
           </p>
-          {/* {pdfCatalogUrl && (
+          {/* PDF Catalog Download Button
+          {pdfCatalogUrl && (
             <div className="mt-6">
-              <Button
-                variant="outline"
-                className="border-orange-600 text-orange-600 hover:bg-orange-50"
+              <button
+                // Using a regular button instead of custom Button component for direct download behavior
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-orange-600 text-orange-600 hover:bg-orange-50 px-4 py-2"
                 onClick={handleDownloadPdf}
                 disabled={isDownloading}
               >
                 {isDownloading ? "Descargando..." : "¡Descarga nuestro catálogo!"}
-              </Button>
+              </button>
             </div>
           )} */}
         </div>
@@ -198,8 +244,10 @@ export default function ProductsPage() {
         <div className="mb-8">
           <Input
             type="text"
-            placeholder="Buscar productos por nombre"
-            value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            placeholder="Buscar productos por nombre o variante"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
 
         {loading ? (
@@ -212,13 +260,12 @@ export default function ProductsPage() {
             <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
               <h3 className="text-lg font-semibold text-red-800 mb-2">Error al Cargar Productos</h3>
               <p className="text-red-700 mb-4">{error}</p>
-              <button onClick={loadProducts} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+              <button onClick={loadProductsAndVariants} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
                 Intentar de Nuevo
               </button>
             </div>
           </div>
-        ) : (searchQuery && filteredProducts.length === 0) ? (
-
+        ) : (searchQuery && filteredDisplayProducts.length === 0) ? (
           <div className="text-center py-12">
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 max-w-md mx-auto">
               <h3 className="text-lg font-semibold text-orange-800 mb-2">No se encontraron productos</h3>
@@ -227,7 +274,7 @@ export default function ProductsPage() {
               </p>
             </div>
           </div>
-        ) : products.length === 0 && !searchQuery ? (
+        ) : allDisplayProducts.length === 0 && !searchQuery ? ( // Check allDisplayProducts, not filtered
           <div className="text-center py-12">
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 max-w-md mx-auto">
               <h3 className="text-lg font-semibold text-orange-800 mb-2">No Hay Productos</h3>
@@ -236,20 +283,30 @@ export default function ProductsPage() {
               </p>
             </div>
           </div>
-        ) : searchQuery ? (
+        ) : searchQuery ? ( // If there's a search query, show filtered products directly
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => <ProductCard key={product.id} product={product} />)}
+            {filteredDisplayProducts.map((displayProduct) => (
+              <ProductCard
+                key={displayProduct.parent.id + "-" + displayProduct.defaultVariant.id}
+                parentProduct={displayProduct.parent}
+                variant={displayProduct.defaultVariant}
+              />
+            ))}
           </div>
-        ) : (
+        ) : ( // Otherwise, display by category carousel
           <div className="space-y-12">
             {CATEGORY_ORDER.map((key) => {
               const category = CATEGORIES[key]
+              const productsForCategory = productsByCategory[key] || [];
+              // Only render carousel if there are products in the category
+              if (productsForCategory.length === 0) return null;
+
               return (
                 <ProductCategoryCarousel
                   key={key}
                   title={category.name}
                   emoji={category.emoji}
-                  products={productsByCategory[key] || []}
+                  products={productsForCategory}
                   categorySlug={category.slug}
                 />
               )
